@@ -1,0 +1,27 @@
+***Welcome to The Auxy Collective***
+
+• This is a community sourced initiative designed to allow increased recognition for more producers within the ever growing Auxy community. 
+• The goal is for everybody here to be able to nominate and vote on music for the community to view, so that talented producers that aren't as strong in the promotion game can get their music heard.
+
+**How It Works**
+• Suggest songs to be reposted in #repost-suggestions all week and vote for ones you like
+• Every Sunday, the :three: tracks with the most :thumbsup: will be featured the following week
+• Each track gets 2 days in the spotlight (Mon/Tue, Wed/Thur, Fri/Sat)
+
+
+**Channel Descriptions**
+
+#news - Important news regarding The Auxy Collective.
+#repost-suggestions - Suggest tracks to be reposted, and vote. (keep reading)
+#music - Discuss suggested tracks and give production tips and feedback.
+#chat - General discussion. Use common sense and respect everyone.
+#bots - Commands for Discord bots to keep the clutter out of other channels.
+
+**Trust Levels**
+
+Achieved simply through active discussion in the collective.
+
+@Basic - Level 1-4
+@Member - Level 5-9
+@Regular - Level 10-19
+@Leader - Level 20+`
