@@ -22,9 +22,15 @@ const getSoundCloudTitle = async url => {
       url
     })
   })
-  const data = await resp.json()
 
-  return data.title
+  try {
+    const data = await resp.json()
+    
+    return data.title
+  } catch(err) {
+    return null
+  }
+
 }
 
 const getSuggestions = async suggestionChannel => {
@@ -39,32 +45,27 @@ const getSuggestions = async suggestionChannel => {
   let suggestions = []
 
   let promises = messages.map(async msg => {
-    const url = findUrl(msg.content)
-
-    if (!url) {
-      return
-    }
-
-    let title
-
     try {
-      title = await getSoundCloudTitle(url)
+      const url = findUrl(msg.content)
+
+      if (!url) return
+
+      const title = await getSoundCloudTitle(url)
+
+      if (!title) return
+      
+      const thumbsUp = msg.reactions.find(reaction => reaction.emoji.name == '👍')
+
+      suggestions.push({
+        url,
+        title,
+        votes: thumbsUp ? thumbsUp.count : 0,
+        message: msg.content,
+        suggester: msg.author.username
+      })
     } catch(err) {
-      console.error(err)
+      console.error(`Error fetching [${msg.content}]: ${err}`)
     }
-
-    const thumbsUp = msg.reactions.find(reaction => reaction.emoji.name == '👍')
-    const votes = thumbsUp ? thumbsUp.count : 0
-    const message = msg.content
-    const suggester = msg.author.username
-
-    suggestions.push( {
-      url,
-      title,
-      votes,
-      message,
-      suggester
-    })
   })
 
   try {
@@ -78,44 +79,46 @@ const getSuggestions = async suggestionChannel => {
   return suggestions
 }
 
-const postLeaderboard = (suggestions, leaderboardChannel) => {
-  leaderboardChannel.bulkDelete(suggestions.length)
-    .catch(console.error)
+const generateLeaderboard = suggestions => {
+  const abbreviations = [
+    {
+      name: 'first',
+      abbreviation: '1st',
+      color: 16758074
+    },
+    {
+      name: 'second',
+      abbreviation: '2nd',
+      color: 13818849,
+    },
+    {
+      name: 'third',
+      abbreviation: '3rd',
+      color: 16749891
+    }
+  ]
+  const embeds = []
 
-  leaderboardChannel.send({ embed: {
-    color: 16758074,
-    title: ":first_place: 1st Place",
-    description: `[${suggestions[0].title}](${suggestions[0].url})`,
-    fields: [{
-      name: "Votes",
-      value: suggestions[0].votes
-    }],
-    timestamp: new Date()
-  }}).catch(console.error)
+  suggestions
+    .slice(0, 3)
+    .forEach(((suggestion, index) => {
+      const abbreviation = abbreviations[index]
 
-  leaderboardChannel.send({ embed: {
-    color: 13818849,
-    title: ":second_place: 2nd Place",
-    description: `[${suggestions[1].title}](${suggestions[1].url})`,
-    fields: [{
-      name: "Votes",
-      value: suggestions[1].votes
-    }],
-    timestamp: new Date()
-  }}).catch(console.error)
+      const embed = {
+        color: abbreviation.color,
+        title: `:${abbreviation.name}_place: ${abbreviation.abbreviation} Place`,
+        description: `[${suggestion.title}](${suggestion.url})`,
+        fields: [{
+          name: "Votes",
+          value: suggestion.votes
+        }],
+        timestamp: new Date()
+      }
 
-  leaderboardChannel.send({ embed: {
-    color: 16749891,
-    title: ":third_place: 3rd Place",
-    description: `[${suggestions[2].title}](${suggestions[2].url})`,
-    fields: [{
-      name: "Votes",
-      value: suggestions[2].votes
-    }],
-    timestamp: new Date()
-  }}).catch(console.error)
+      embeds.push(embed)
+    }))
 
-  console.log('Sucessfully updated leaderboard')
+  return embeds
 }
 
 const postInfoText = infoChannel => {
@@ -129,6 +132,6 @@ module.exports = {
   findUrl,
   getSoundCloudTitle,
   getSuggestions,
-  postLeaderboard,
+  generateLeaderboard,
   postInfoText
 }

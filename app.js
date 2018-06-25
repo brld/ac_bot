@@ -1,42 +1,39 @@
 const Discord = require("discord.js")
 const client = new Discord.Client()
-const { getSuggestions, postLeaderboard, findUrl } = require('./util')
+const { getSuggestions, generateLeaderboard } = require('./util')
 
 const suggestionChannelID = '455490656358629398'
 const leaderboardChannelID = '457939941654003723'
 
-const updateLeaderboard = async (suggestionChannel, leaderboardChannel) => {
-  const suggestions = await getSuggestions(suggestionChannel)
-  
-  postLeaderboard(suggestions, leaderboardChannel)
-}
-
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.username}!`)
   client.user.setActivity(`Auxy Collective`)
+  
+  try {
+    const suggestionChannel = client.channels.get(suggestionChannelID)
+    const leaderboardChannel = client.channels.get(leaderboardChannelID)
 
-  const suggestionChannel = client.channels.get(suggestionChannelID)
-  const leaderboardChannel = client.channels.get(leaderboardChannelID)
+    let suggestions = await getSuggestions(suggestionChannel)
+    let leaderboard = generateLeaderboard(suggestions, leaderboardChannel)
 
-  updateLeaderboard(suggestionChannel, leaderboardChannel)
+    leaderboardChannel.bulkDelete(6)
+    
+    const firstPlace = await leaderboardChannel.send({ embed: leaderboard[0] })
+    const secondPlace = await leaderboardChannel.send({ embed: leaderboard[1] })
+    const thirdPlace = await leaderboardChannel.send({ embed: leaderboard[2] })
 
-  setInterval(() => {
-    updateLeaderboard(suggestionChannel, leaderboardChannel)
-  }, 1000 * 60 * 60)
-})
+    setInterval(async () => {
+      suggestions = await getSuggestions(suggestionChannel)
 
-client.on('message', msg => {
-  if (msg.author.bot) return
+      console.log(suggestions)
+      leaderboard = generateLeaderboard(suggestions, leaderboardChannel)
 
-  if (msg.channel.id === suggestionChannelID) {
-    const hasUrl = findUrl(msg.content)
-
-    if (!hasUrl) {
-      msg.delete()
-        .catch(console.error)
-
-      msg.author.send('Please post comments in #chat or #music. Thanks!')
-    }
+      firstPlace.edit({ embed: leaderboard[0] })
+      secondPlace.edit({ embed: leaderboard[1] })
+      thirdPlace.edit({ embed: leaderboard[2] })
+    }, 1000 * 5)
+  } catch (err) {
+    console.error(err)
   }
 })
 
