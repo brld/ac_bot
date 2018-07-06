@@ -1,12 +1,17 @@
+const { existsSync, unlinkSync } = require('fs')
+const { join } = require('path')
 const Discord = require("discord.js")
-const client = new Discord.Client()
 
-const { suggestionChannelID, leaderboardChannelID } = require('./config')
-const updateLeaderboard = require('./utilities/updateLeaderboard')
+const { suggestionChannelID, leaderboardChannelID } = require('../config')
+const updateLeaderboard = require('./updateLeaderboard')
+
+const client = new Discord.Client()
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.username}!`)
   client.user.setActivity(`Auxy Collective`)
+
+  if (existsSync(join(__dirname, 'leaderboard.json'))) unlinkSync(join(__dirname, 'leaderboard.json'))
   
   try {
     const suggestionChannel = client.channels.get(suggestionChannelID)
@@ -15,8 +20,9 @@ client.on('ready', () => {
     updateLeaderboard(suggestionChannel, leaderboardChannel)
 
     setInterval(() => {
+      console.log('Checking for changes')
       updateLeaderboard(suggestionChannel, leaderboardChannel)
-    }, process.env.DEBUG ? 1000 * 5 : 1000 * 60 * 60)
+    }, process.env.DEBUG ? 5000 : 1000 * 60 * 60)
   } catch (err) {
     console.error(err)
   }
