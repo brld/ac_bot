@@ -22,7 +22,7 @@ client.on('ready', () => {
     setInterval(() => {
       console.log('Checking for changes')
       updateLeaderboard(suggestionChannel, leaderboardChannel)
-    }, process.env.DEBUG ? 5000 : 1000 * 60 * 60)
+    }, process.env.DEBUG ? 10000 : 1000 * 60 * 60)
   } catch (err) {
     console.error(err)
   }

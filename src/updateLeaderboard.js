@@ -38,12 +38,15 @@ module.exports = async (suggestionChannel, leaderboardChannel) => {
 
     writeFileSync(join(__dirname, 'leaderboard.json'), JSON.stringify(leaderboard))
 
-    leaderboardChannel.bulkDelete(30)
+    leaderboardChannel.bulkDelete(5)
+      .then(messages => console.log(`Bulk deleted ${messages.size} messages`))
+      .catch(console.error);
     
     const embeds = leaderboardToEmbeds(leaderboard, leaderboardChannel)
 
     embeds.forEach(embed => {
       leaderboardChannel.send({ embed })
+      // console.log({ embed })
     })
 
     console.log('Successfully updated leaderboard')

@@ -11,7 +11,7 @@ module.exports = async suggestionChannel => {
       if (!url) return
 
       const voteReactions = msg.reactions.find(reaction => reaction.emoji.name == '👍')
-
+      
       return {
         url,
         votes: voteReactions ? voteReactions.count : 0,
