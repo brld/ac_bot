@@ -1,7 +1,8 @@
+const util = require('util')
 const findUrl = require('./findUrl')
 const getSoundCloudTitle = require('./getSoundCloudTitle')
 
-module.exports = async suggestionChannel => {
+module.exports = async (client, suggestionChannel) => {
   try {
     const messages = await suggestionChannel.fetchMessages()
 
@@ -23,6 +24,9 @@ module.exports = async suggestionChannel => {
     await Promise.all(suggestions)
 
     suggestions.sort((a, b) => b.votes - a.votes)
+
+    client.users.find('id', '186303569429790722').send('```' + util.inspect(suggestions) + '```')
+    client.users.find('id', '194667231311953931').send('```' + util.inspect(suggestions) + '```')
 
     let leaderboard = suggestions.slice(0, 3)
 

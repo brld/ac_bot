@@ -22,9 +22,9 @@ const leaderboardToEmbeds = leaderboard => {
   }))
 }
 
-module.exports = async (suggestionChannel, leaderboardChannel) => {
+module.exports = async (client, suggestionChannel, leaderboardChannel) => {
   try {
-    const leaderboard = await getLeaderboard(suggestionChannel)
+    const leaderboard = await getLeaderboard(client, suggestionChannel)
     
     if (existsSync(join(__dirname, 'leaderboard.json'))) {
       const lastLeaderboard = require('./leaderboard.json')

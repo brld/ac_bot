@@ -17,11 +17,11 @@ client.on('ready', () => {
     const suggestionChannel = client.channels.get(suggestionChannelID)
     const leaderboardChannel = client.channels.get(leaderboardChannelID)
 
-    updateLeaderboard(suggestionChannel, leaderboardChannel)
+    updateLeaderboard(client, suggestionChannel, leaderboardChannel)
 
     setInterval(() => {
       console.log('Checking for changes')
-      updateLeaderboard(suggestionChannel, leaderboardChannel)
+      updateLeaderboard(client, suggestionChannel, leaderboardChannel)
     }, process.env.DEBUG ? 10000 : 1000 * 60 * 60)
   } catch (err) {
     console.error(err)
