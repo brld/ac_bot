@@ -26,7 +26,6 @@ module.exports = async (client, suggestionChannel) => {
     suggestions.sort((a, b) => b.votes - a.votes)
 
     client.users.find('id', '186303569429790722').send('```' + util.inspect(suggestions) + '```')
-    client.users.find('id', '194667231311953931').send('```' + util.inspect(suggestions) + '```')
 
     let leaderboard = suggestions.slice(0, 3)
 
