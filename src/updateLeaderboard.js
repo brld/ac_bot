@@ -24,14 +24,14 @@ const leaderboardToEmbeds = leaderboard => {
 
 module.exports = async (client, suggestionChannel, leaderboardChannel) => {
   try {
-    const leaderboard = await getLeaderboard(client, suggestionChannel)
-    
+    const leaderboard = await getLeaderboard(suggestionChannel)
+
     if (existsSync(join(__dirname, 'leaderboard.json'))) {
       const lastLeaderboard = require('./leaderboard.json')
-      
+
       if (_.isEqual(leaderboard, lastLeaderboard)) {
         console.log('Leaderboard is identical')
-        
+
         return
       }
     }
@@ -41,12 +41,11 @@ module.exports = async (client, suggestionChannel, leaderboardChannel) => {
     leaderboardChannel.bulkDelete(5)
       .then(messages => console.log(`Bulk deleted ${messages.size} messages`))
       .catch(console.error);
-    
+
     const embeds = leaderboardToEmbeds(leaderboard, leaderboardChannel)
 
     embeds.forEach(embed => {
       leaderboardChannel.send({ embed })
-      // console.log({ embed })
     })
 
     console.log('Successfully updated leaderboard')

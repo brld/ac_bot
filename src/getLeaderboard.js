@@ -2,7 +2,7 @@ const util = require('util')
 const findUrl = require('./findUrl')
 const getSoundCloudTitle = require('./getSoundCloudTitle')
 
-module.exports = async (client, suggestionChannel) => {
+module.exports = async suggestionChannel => {
   try {
     const messages = await suggestionChannel.fetchMessages()
 
@@ -12,7 +12,7 @@ module.exports = async (client, suggestionChannel) => {
       if (!url) return
 
       const voteReactions = msg.reactions.find(reaction => reaction.emoji.name == '👍')
-      
+
       return {
         url,
         votes: voteReactions ? voteReactions.count : 0,
@@ -25,7 +25,7 @@ module.exports = async (client, suggestionChannel) => {
 
     suggestions.sort((a, b) => b.votes - a.votes)
 
-    client.users.find('id', '186303569429790722').send('```' + util.inspect(suggestions) + '```')
+    process.env.DEBUG ? console.log(suggestions) : null
 
     let leaderboard = suggestions.slice(0, 3)
 

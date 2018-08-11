@@ -4,6 +4,7 @@ const Discord = require("discord.js")
 
 const { suggestionChannelID, leaderboardChannelID } = require('../config')
 const updateLeaderboard = require('./updateLeaderboard')
+const containsPublicLink = require('./containsPublicLink')
 
 const client = new Discord.Client()
 
@@ -12,7 +13,7 @@ client.on('ready', () => {
   client.user.setActivity(`Auxy Collective`)
 
   if (existsSync(join(__dirname, 'leaderboard.json'))) unlinkSync(join(__dirname, 'leaderboard.json'))
-  
+
   try {
     const suggestionChannel = client.channels.get(suggestionChannelID)
     const leaderboardChannel = client.channels.get(leaderboardChannelID)
@@ -21,10 +22,41 @@ client.on('ready', () => {
 
     setInterval(() => {
       console.log('Checking for changes')
-      updateLeaderboard(client, suggestionChannel, leaderboardChannel)
-    }, process.env.DEBUG ? 10000 : 1000 * 60 * 60)
+      updateLeaderboard(suggestionChannel, leaderboardChannel)
+    }, process.env.DEBUG ? 30 * 1000 * 60 : 1000 * 60 * 60)
   } catch (err) {
     console.error(err)
+  }
+})
+
+client.on('message', msg => {
+  try {
+    if (msg.author.bot) return
+
+    const hasPublicLink = containsPublicLink(msg)
+    const isInRepostSuggestions = msg.channel.id === '463395823959408640'
+    const isInRadio = msg.channel.id === '462313308725182484'
+
+    if (hasPublicLink && !isInRepostSuggestions && !isInRadio) {
+      msg.delete()
+
+      client.channels.find('id', '470759790197473280').send({
+        embed: {
+          image: msg.author.displayAvatarURL,
+          title: msg.author.tag,
+          description: `ddd`,
+          fields: [{
+            name: 'Deleted for self promotion',
+            value: msg.content
+          }],
+          timestamp: new Date(),
+          color: 16724539
+        }
+      }).catch(e => console.error(e))
+      msg.author.send('Self promotion is not allowed in Auxy Collective, please refer to rule :five:')
+    }
+  } catch(e) {
+    console.error(e);
   }
 })
 
