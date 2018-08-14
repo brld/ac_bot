@@ -42,11 +42,13 @@ client.on('message', msg => {
 
       client.channels.find('id', '470759790197473280').send({
         embed: {
-          image: msg.author.displayAvatarURL,
-          title: msg.author.tag,
-          description: `ddd`,
+          author: {
+            iconURL: msg.author.displayAvatarURL,
+            name: msg.author.tag
+          },
+          title: `Deleted for self promotion in #${msg.channel.name}`,
           fields: [{
-            name: 'Deleted for self promotion',
+            name: 'Content:',
             value: msg.content
           }],
           timestamp: new Date(),
