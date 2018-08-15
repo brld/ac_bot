@@ -1,31 +1,57 @@
-const { existsSync, unlinkSync } = require('fs')
-const { join } = require('path')
-const Discord = require("discord.js")
+const Discord = require('discord.js')
+const fs = require('fs')
+const path = require('path')
+const _ = require('underscore')
 
-const { suggestionChannelID, leaderboardChannelID } = require('../config')
-const updateLeaderboard = require('./updateLeaderboard')
+
+const config = require('../config')
+const getLeaderboardEmbeds = require('./getLeaderboardEmbeds')
+const getSuggestions = require('./getSuggestions')
 const containsPublicLink = require('./containsPublicLink')
 
 const client = new Discord.Client()
 
 client.on('ready', () => {
-  console.log(`Logged in as ${client.user.username}!`)
-  client.user.setActivity(`Auxy Collective`)
-
-  if (existsSync(join(__dirname, 'leaderboard.json'))) unlinkSync(join(__dirname, 'leaderboard.json'))
-
   try {
-    const suggestionChannel = client.channels.get(suggestionChannelID)
-    const leaderboardChannel = client.channels.get(leaderboardChannelID)
+    console.log(`Logged in as ${client.user.username}!`)
+    client.user.setActivity(`with Hum4n01d`)
 
-    updateLeaderboard(client, suggestionChannel, leaderboardChannel)
+    if (fs.existsSync(path.join(__dirname, 'leaderboard.json'))) {
+      fs.unlinkSync(path.join(__dirname, 'leaderboard.json'))
+    }
 
-    setInterval(() => {
-      console.log('Checking for changes')
-      updateLeaderboard(suggestionChannel, leaderboardChannel)
-    }, process.env.DEBUG ? 30 * 1000 * 60 : 1000 * 60 * 60)
+    const suggestionChannel = client.channels.get(config.suggestionChannelID)
+    const leaderboardChannel = client.channels.get(config.leaderboardChannelID)
+
+    let lastLeaderboard
+
+    setInterval(async () => {
+      const suggestionsMessages = await suggestionChannel.fetchMessages()
+      const suggestions = await getSuggestions(suggestionsMessages)
+      
+      const leaderboard = suggestions.slice(0, 3)
+
+      if (_.isEqual(lastLeaderboard, leaderboard)) return
+
+      lastLeaderboard = leaderboard
+      
+      await leaderboardChannel.bulkDelete(5)
+
+      const leaderboardEmbeds = await getLeaderboardEmbeds(leaderboard)
+
+      leaderboardEmbeds.forEach(embed => {
+        leaderboardChannel.send({ 
+          embed
+        })
+      })
+
+      console.log('-----------')
+      leaderboard.forEach(track => {
+        console.log(`${track.title} - ${track.votes}`)
+      })
+    }, config.updateFrequency)
   } catch (err) {
-    console.error(err)
+    console.err(err)
   }
 })
 
@@ -55,18 +81,18 @@ client.on('message', msg => {
           color: 16724539
         }
       }).catch(e => console.error(e))
+
       msg.author.send('Self promotion is not allowed in Auxy Collective, please refer to rule :five:')
     }
-  } catch(e) {
-    console.error(e);
+  } catch(err) {
+    console.error(err)
   }
 })
 
 client.login(process.env.AC_BOT_TOKEN)
 
-function onExit() {
-  console.log("exiting");
+process.on('SIGINT', () => {
+  console.log('exiting')
   client.destroy()
   process.exit()
-}
-process.on('SIGINT', onExit)
+})

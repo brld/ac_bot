@@ -1,12 +1,9 @@
-const util = require('util')
 const findUrl = require('./findUrl')
 const getSoundCloudTitle = require('./getSoundCloudTitle')
 
-module.exports = async suggestionChannel => {
+const getSuggestions = async suggestionsMessages => {
   try {
-    const messages = await suggestionChannel.fetchMessages()
-
-    let suggestions = messages.map(msg => {
+    let suggestions = suggestionsMessages.map(msg => {
       const url = findUrl(msg.content)
 
       if (!url) return
@@ -25,11 +22,7 @@ module.exports = async suggestionChannel => {
 
     suggestions.sort((a, b) => b.votes - a.votes)
 
-    process.env.DEBUG ? console.log(suggestions) : null
-
-    let leaderboard = suggestions.slice(0, 3)
-
-    leaderboard = leaderboard.map(async track => {
+    suggestions = suggestions.map(async track => {
       const title = await getSoundCloudTitle(track.url)
 
       return {
@@ -38,8 +31,10 @@ module.exports = async suggestionChannel => {
       }
     })
 
-    return Promise.all(leaderboard)
+    return Promise.all(suggestions)
   } catch (err) {
     console.error(err)
   }
 }
+
+module.exports = getSuggestions
