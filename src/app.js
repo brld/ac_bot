@@ -16,10 +16,6 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.username}!`)
     client.user.setActivity(`with Hum4n01d`)
 
-    if (fs.existsSync(path.join(__dirname, 'leaderboard.json'))) {
-      fs.unlinkSync(path.join(__dirname, 'leaderboard.json'))
-    }
-
     const suggestionChannel = client.channels.get(config.suggestionChannelID)
     const leaderboardChannel = client.channels.get(config.leaderboardChannelID)
 
