@@ -1,10 +1,26 @@
-const { abbreviations } = require('../config')
-
 const getLeaderboardEmbeds = async leaderboard => {
   try {
+    const embedInfo = [
+      {
+        name: 'first',
+        abbreviation: '1st',
+        color: 16758074
+      },
+      {
+        name: 'second',
+        abbreviation: '2nd',
+        color: 13818849,
+      },
+      {
+        name: 'third',
+        abbreviation: '3rd',
+        color: 16749891
+      }
+    ]
+
     return leaderboard.map((track, index) => ({
-      color: abbreviations[index].color,
-      title: `:${abbreviations[index].name}_place: ${abbreviations[index].abbreviation} Place`,
+      color: embedInfo[index].color,
+      title: `:${embedInfo[index].name}_place: ${embedInfo[index].abbreviation} Place`,
       description: `[${track.title}](${track.url})`,
       fields: [{
         name: "Votes",
