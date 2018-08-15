@@ -34,7 +34,7 @@ client.on('message', msg => {
     if (msg.author.bot) return
 
     const hasPublicLink = containsPublicLink(msg)
-    const isInRepostSuggestions = msg.channel.id === '463395823959408640'
+    const isInRepostSuggestions = msg.channel.id === config.suggestionChannelID
     const isInRadio = msg.channel.id === '462313308725182484'
 
     if (hasPublicLink && !isInRepostSuggestions && !isInRadio) {
