@@ -1,8 +1,5 @@
 const Discord = require('discord.js')
-const fs = require('fs')
-const path = require('path')
 const _ = require('underscore')
-
 
 const config = require('../config')
 const getLeaderboardEmbeds = require('./getLeaderboardEmbeds')
