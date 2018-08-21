@@ -21,6 +21,8 @@ client.on('ready', () => {
     setInterval(async () => {
       const suggestionsMessages = await suggestionChannel.fetchMessages()
       const suggestions = await getSuggestions(suggestionsMessages)
+
+      process.env.DEBUG ? console.log(suggestions) : null
       
       const leaderboard = suggestions.slice(0, 3)
 
