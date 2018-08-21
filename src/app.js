@@ -8,9 +8,23 @@ const containsPublicLink = require('./containsPublicLink')
 
 const client = new Discord.Client()
 
+function log(options) {
+  if (process.env.DEBUG) {
+    if (options.onlyVerbose) {
+      if (process.env.VERBOSE) {
+        console.log(options.message)
+      }
+    } else {
+      console.log(options.message)
+    }
+  }
+}
+
 client.on('ready', () => {
   try {
     console.log(`Logged in as ${client.user.username}!`)
+    console.log(`Logging is ${process.env.DEBUG ? 'enabled' : 'disabled'}`)
+
     client.user.setActivity(`with Hum4n01d`)
 
     const suggestionChannel = client.channels.get(config.suggestionChannelID)
@@ -19,14 +33,20 @@ client.on('ready', () => {
     let lastLeaderboard
 
     setInterval(async () => {
+      log({ message: 'Checking for changes' })
+
       const suggestionsMessages = await suggestionChannel.fetchMessages()
       const suggestions = await getSuggestions(suggestionsMessages)
 
-      process.env.DEBUG ? console.log(suggestions) : null
+      log({ message: suggestions, onlyVerbose: true })
       
       const leaderboard = suggestions.slice(0, 3)
 
-      if (_.isEqual(lastLeaderboard, leaderboard)) return
+      if(_.isEqual(lastLeaderboard, leaderboard)) {
+        return log({ message: 'Leaderboard is equal' })
+      } else {
+        log({ message: 'Found change in leaderboard' })
+      }
 
       lastLeaderboard = leaderboard
       
@@ -40,9 +60,9 @@ client.on('ready', () => {
         })
       })
 
-      console.log('-----------')
+      log({ message: '-----------' })
       leaderboard.forEach(track => {
-        console.log(`${track.title} - ${track.votes}`)
+        log({ message: `${track.title} - ${track.votes}` })
       })
     }, config.updateFrequency)
   } catch (err) {
