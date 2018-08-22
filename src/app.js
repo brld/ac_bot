@@ -1,10 +1,13 @@
 const Discord = require('discord.js')
+const Raven = require('raven')
 
 const config = require('../config')
 const updateLeaderboard = require('./updateLeaderboard')
 const containsPublicLink = require('./containsPublicLink')
 
 const client = new Discord.Client()
+
+Raven.config('https://149a426762d9476087521d1a63bb22e1@sentry.io/1267210').install()
 
 client.on('ready', async () => {
   try {
@@ -24,6 +27,7 @@ client.on('ready', async () => {
       lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
     }, config.updateFrequency)
   } catch (err) {
+    Raven.captureException(err)
     console.error(err)
   }
 })
@@ -53,11 +57,12 @@ client.on('message', msg => {
           timestamp: new Date(),
           color: 16724539
         }
-      }).catch(e => console.error(e))
+      })
 
       msg.author.send('Self promotion is not allowed in Auxy Collective, please refer to rule :five:')
     }
   } catch(err) {
+    Raven.captureException(err)
     console.error(err)
   }
 })

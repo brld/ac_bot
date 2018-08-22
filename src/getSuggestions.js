@@ -33,6 +33,7 @@ const getSuggestions = async suggestionsMessages => {
 
     return Promise.all(suggestions)
   } catch (err) {
+    Raven.captureException(err)
     console.error(err)
   }
 }
