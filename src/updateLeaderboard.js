@@ -5,7 +5,7 @@ const getLeaderboardEmbeds = require('./getLeaderboardEmbeds')
 const getSuggestions = require('./getSuggestions')
 
 const updateLeaderboard = async (lastLeaderboard, suggestionChannel, leaderboardChannel) => {
-  log({ message: 'Checking for changes' })
+  log({ message: 'Checking for changes', onlyVerbose: true })
 
   const suggestionsMessages = await suggestionChannel.fetchMessages()
   const suggestions = await getSuggestions(suggestionsMessages)
@@ -15,9 +15,9 @@ const updateLeaderboard = async (lastLeaderboard, suggestionChannel, leaderboard
   const leaderboard = suggestions.slice(0, 3)
 
   if(_.isEqual(lastLeaderboard, leaderboard)) {
-    return log({ message: 'Leaderboard is equal' })
+    return log({ message: 'Leaderboard is equal', onlyVerbose: true })
   } else {
-    log({ message: 'Found change in leaderboard' })
+    log({ message: 'Found change in leaderboard', onlyVerbose: true })
   }
   
   await leaderboardChannel.bulkDelete(5)
