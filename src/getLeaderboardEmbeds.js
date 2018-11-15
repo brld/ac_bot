@@ -29,7 +29,6 @@ const getLeaderboardEmbeds = async leaderboard => {
       timestamp: new Date()
     }))
   } catch (err) {
-    Raven.captureException(err)
     console.error(err)
   }
 }

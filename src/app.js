@@ -1,33 +1,32 @@
 const Discord = require('discord.js')
-const Raven = require('raven')
 
 const config = require('../config')
 const updateLeaderboard = require('./updateLeaderboard')
 const containsPublicLink = require('./containsPublicLink')
+const log = require('./log')
+
+require('dotenv').config()
 
 const client = new Discord.Client()
 
-Raven.config('https://149a426762d9476087521d1a63bb22e1@sentry.io/1267210').install()
-
 client.on('ready', async () => {
   try {
-    console.log(`Logged in as ${client.user.username}!`)
-    console.log(`Logging is ${process.env.DEBUG ? 'enabled' : 'disabled'}`)
+    log({ message: `Logged in as ${client.user.username}!`, logLevel: 1 })
+    log({ message: `Logging is set to ${process.env.LOG_LEVEL}`, logLevel: 1 })
+    log({ message: '-----------', logLevel: 1 })
 
     client.user.setActivity(`with Hum4n01d`)
-    
-    let lastLeaderboard
 
+    // Start leaderboard update loop
     const suggestionChannel = client.channels.get(config.suggestionChannelID)
     const leaderboardChannel = client.channels.get(config.leaderboardChannelID)
 
-    lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
-
+    let lastLeaderboard = await updateLeaderboard([], suggestionChannel, leaderboardChannel)
+    
     setInterval(async () => {
       lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
     }, config.updateFrequency)
   } catch (err) {
-    Raven.captureException(err)
     console.error(err)
   }
 })
@@ -36,11 +35,12 @@ client.on('message', msg => {
   try {
     if (msg.author.bot) return
 
-    const hasPublicLink = containsPublicLink(msg)
+    const hasPublicLink = containsPublicLink(msg.content)
     const isInRepostSuggestions = msg.channel.id === config.suggestionChannelID
     const isInRadio = msg.channel.id === '462313308725182484'
+    const isExempt = isInRepostSuggestions || isInRadio // TODO: Add staff channel category and staff role to exemption list
 
-    if (hasPublicLink && !isInRepostSuggestions && !isInRadio) {
+    if (hasPublicLink && !isExempt) {
       msg.delete()
 
       client.channels.find('id', '470759790197473280').send({
@@ -59,10 +59,9 @@ client.on('message', msg => {
         }
       })
 
-      msg.author.send('Self promotion is not allowed in Auxy Collective, please refer to rule :five:')
+      msg.author.send('Please refrain from self-promotion in the Auxy Collective :wink:(rule :five:)')
     }
   } catch(err) {
-    Raven.captureException(err)
     console.error(err)
   }
 })
@@ -70,7 +69,7 @@ client.on('message', msg => {
 client.login(process.env.AC_BOT_TOKEN)
 
 process.on('SIGINT', () => {
-  console.log('exiting')
+  console.log('Exiting...')
   client.destroy()
   process.exit()
 })

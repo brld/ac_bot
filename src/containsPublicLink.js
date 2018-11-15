@@ -1,12 +1,20 @@
-const findUrl = require('./findUrl')
+const getUrls = require('./getUrls')
 
-module.exports = msg => {
-  const url = findUrl(msg.content)
+const containsPublicLink = text => {
+  const urls = getUrls(text)
 
-  if (url && !url.split('/')[5] && url.includes("soundcloud.com")) {
-    return true
+  if (!urls || urls.length < 1) return
 
-    console.log(`"${msg.content}" by ${msg.author.username} was deleted in AC for containg a public link`);
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i]
+
+    // Check if url is a SoundCloud link and it doesn't have a private share code
+    if (url && url.includes('soundcloud.com')) {
+      if (!url.split('/')[5]) return true
+    }
   }
+
   return false
 }
+
+module.exports = containsPublicLink

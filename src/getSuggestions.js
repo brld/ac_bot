@@ -1,17 +1,19 @@
-const findUrl = require('./findUrl')
+const getUrls = require('./getUrls')
 const getSoundCloudTitle = require('./getSoundCloudTitle')
 
 const getSuggestions = async suggestionsMessages => {
   try {
     let suggestions = suggestionsMessages.map(msg => {
-      const url = findUrl(msg.content)
+      const urls = getUrls(msg.content)
 
-      if (!url) return
+      // Ignore message if it contains zero or more than one link
+      if (!urls.length) return
+      if (urls.length > 1) return
 
       const voteReactions = msg.reactions.find(reaction => reaction.emoji.name == '👍')
 
       return {
-        url,
+        url: urls[0],
         votes: voteReactions ? voteReactions.count : 0,
         message: msg.content,
         suggester: `${msg.author.username}#${msg.author.discriminator}`
@@ -33,7 +35,6 @@ const getSuggestions = async suggestionsMessages => {
 
     return Promise.all(suggestions)
   } catch (err) {
-    Raven.captureException(err)
     console.error(err)
   }
 }

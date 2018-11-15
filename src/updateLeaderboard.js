@@ -5,37 +5,40 @@ const getLeaderboardEmbeds = require('./getLeaderboardEmbeds')
 const getSuggestions = require('./getSuggestions')
 
 const updateLeaderboard = async (lastLeaderboard, suggestionChannel, leaderboardChannel) => {
-  log({ message: 'Checking for changes', onlyVerbose: true })
+  try {
+    log({ message: 'Checking for changes', logLevel: 2 })
 
-  const suggestionsMessages = await suggestionChannel.fetchMessages()
-  const suggestions = await getSuggestions(suggestionsMessages)
+    const suggestionsMessages = await suggestionChannel.fetchMessages()
+    const suggestions = await getSuggestions(suggestionsMessages)
 
-  log({ message: suggestions, onlyVerbose: true })
-  
-  const leaderboard = suggestions.slice(0, 3)
+    log({ message: suggestions, logLevel: 3 })
 
-  if(_.isEqual(lastLeaderboard, leaderboard)) {
-    return log({ message: 'Leaderboard is equal', onlyVerbose: true })
-  } else {
-    log({ message: 'Found change in leaderboard', onlyVerbose: true })
-  }
-  
-  await leaderboardChannel.bulkDelete(5)
+    const leaderboard = suggestions.slice(0, 3)
 
-  const leaderboardEmbeds = await getLeaderboardEmbeds(leaderboard)
+    if(_.isEqual(lastLeaderboard, leaderboard)) return
 
-  leaderboardEmbeds.forEach(embed => {
-    leaderboardChannel.send({ 
-      embed
+    log({ message: 'Found change in leaderboard', logLevel: 1 })
+
+    await leaderboardChannel.bulkDelete(5)
+
+    const leaderboardEmbeds = await getLeaderboardEmbeds(leaderboard)
+
+    leaderboardEmbeds.forEach(embed => {
+      leaderboardChannel.send({
+        embed
+      })
     })
-  })
 
-  log({ message: '-----------' })
-  leaderboard.forEach(track => {
-    log({ message: `${track.title} - ${track.votes}` })
-  })
+    log({ message: '-----------', logLevel: 1 })
+    leaderboard.forEach(track => {
+      log({ message: `${track.title} - ${track.votes}`, logLevel: 1 })
+    })
+    log({ message: '-----------', logLevel: 1 })
 
-  return leaderboard
+    return leaderboard
+  } catch(err) {
+    return console.error(err)
+  }
 }
 
 module.exports = updateLeaderboard

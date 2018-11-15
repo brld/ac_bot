@@ -1,12 +1,6 @@
-const log = options => {
-  if (process.env.DEBUG) {
-    if (options.onlyVerbose) {
-      if (process.env.VERBOSE) {
-        console.log(options.message)
-      }
-    } else {
-      console.log(options.message)
-    }
+const log = args => {
+  if (parseInt(process.env.LOG_LEVEL) >= args.logLevel) {
+    console.log(args.message)
   }
 }
 
