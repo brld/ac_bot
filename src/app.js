@@ -15,14 +15,14 @@ client.on('ready', async () => {
     log({ message: `Logging is set to ${process.env.LOG_LEVEL}`, logLevel: 1 })
     log({ message: '-----------', logLevel: 1 })
 
-    client.user.setActivity(`with Hum4n01d`)
+    client.user.setActivity(`with the leaderboard`)
 
     // Start leaderboard update loop
     const suggestionChannel = client.channels.get(config.suggestionChannelID)
     const leaderboardChannel = client.channels.get(config.leaderboardChannelID)
 
     let lastLeaderboard = await updateLeaderboard([], suggestionChannel, leaderboardChannel)
-    
+
     setInterval(async () => {
       lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
     }, config.updateFrequency)
