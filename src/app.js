@@ -4,6 +4,7 @@ const config = require('../config')
 const updateLeaderboard = require('./updateLeaderboard')
 const containsPublicLink = require('./containsPublicLink')
 const log = require('./log')
+const getUrls = require('./getUrls')
 
 require('dotenv').config()
 
@@ -25,7 +26,8 @@ client.on('ready', async () => {
     
     setInterval(async () => {
       lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
-    }, config.updateFrequency)
+    // }, config.updateFrequency)
+    }, 10000)
   } catch (err) {
     console.error(err)
   }
@@ -38,7 +40,9 @@ client.on('message', msg => {
     const hasPublicLink = containsPublicLink(msg.content)
     const isInRepostSuggestions = msg.channel.id === config.suggestionChannelID
     const isInRadio = msg.channel.id === '462313308725182484'
-    const isExempt = isInRepostSuggestions || isInRadio // TODO: Add staff channel category and staff role to exemption list
+    const isInOthersMusic = msg.channel.id === '525062108405301268'
+    const isStaff = msg.member.roles.has('466011844977360896')
+    const isExempt = isInRepostSuggestions || isInRadio || isInOthersMusic || isStaff
 
     if (hasPublicLink && !isExempt) {
       msg.delete()
@@ -60,6 +64,24 @@ client.on('message', msg => {
       })
 
       msg.author.send('Please refrain from self-promotion in the Auxy Collective :wink:(rule :five:)')
+    }
+
+    if (isInRepostSuggestions) {
+      const urls = getUrls(msg.content)
+
+      // Delete message if it contains zero or more than one link
+      if (!urls) {
+        msg.author.send('Please only post SoundCloud links in #repost-suggestions :wink:')
+        msg.delete()
+        
+        return
+      }
+      if (urls.length > 1) {
+        msg.author.send('Please only post one SoundCloud link per message in #repost-suggestions :wink:')
+        msg.delete()
+
+        return
+      }
     }
   } catch(err) {
     console.error(err)

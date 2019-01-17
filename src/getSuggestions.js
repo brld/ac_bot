@@ -5,11 +5,6 @@ const getSuggestions = async suggestionsMessages => {
   try {
     let suggestions = suggestionsMessages.map(msg => {
       const urls = getUrls(msg.content)
-
-      // Ignore message if it contains zero or more than one link
-      if (!urls.length) return
-      if (urls.length > 1) return
-
       const voteReactions = msg.reactions.find(reaction => reaction.emoji.name == '👍')
 
       return {
@@ -21,17 +16,20 @@ const getSuggestions = async suggestionsMessages => {
     })
 
     await Promise.all(suggestions)
-
+    
     suggestions.sort((a, b) => b.votes - a.votes)
-
+    
     suggestions = suggestions.map(async track => {
-      const title = await getSoundCloudTitle(track.url)
-
+      const title = await getSoundCloudTitle(track.url.toLowerCase()) // SoundCloud won't accept weirdly capitalized urls
+      
       return {
         title,
         ...track
       }
     })
+    
+
+    console.log(suggestions)
 
     return Promise.all(suggestions)
   } catch (err) {
