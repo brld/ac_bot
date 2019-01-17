@@ -16,7 +16,7 @@ const getSuggestions = async suggestionsMessages => {
     })
 
     await Promise.all(suggestions)
-    
+
     suggestions.sort((a, b) => b.votes - a.votes)
     
     suggestions = suggestions.map(async track => {
@@ -27,9 +27,6 @@ const getSuggestions = async suggestionsMessages => {
         ...track
       }
     })
-    
-
-    console.log(suggestions)
 
     return Promise.all(suggestions)
   } catch (err) {
