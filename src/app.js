@@ -12,8 +12,9 @@ const client = new Discord.Client()
 
 client.on('ready', async () => {
   try {
-    log({ message: `Logged in as ${client.user.username}!`, logLevel: 1 })
-    log({ message: `Logging is set to ${process.env.LOG_LEVEL}`, logLevel: 1 })
+    log({ message: `Logged in as ${ client.user.username }!`, logLevel: 1 })
+    log({ message: `Logging is set to ${ process.env.LOG_LEVEL }`, logLevel: 1 })
+    log({ message: `Debug is set to ${ process.env.DEBUG }`, logLevel: 1 })
     log({ message: '-----------', logLevel: 1 })
 
     client.user.setActivity(`with Hum4n01d`)
@@ -26,8 +27,7 @@ client.on('ready', async () => {
     
     setInterval(async () => {
       lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
-    // }, config.updateFrequency)
-    }, 10000)
+    }, config.updateFrequency)
   } catch (err) {
     console.error(err)
   }

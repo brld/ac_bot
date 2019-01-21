@@ -16,12 +16,12 @@ const getSuggestions = async suggestionsMessages => {
     })
 
     await Promise.all(suggestions)
-
-    suggestions.sort((a, b) => b.votes - a.votes)
     
+    suggestions.sort((a, b) => b.votes - a.votes)
+
     suggestions = suggestions.map(async track => {
       const title = await getSoundCloudTitle(track.url.toLowerCase()) // SoundCloud won't accept weirdly capitalized urls
-      
+
       return {
         title,
         ...track
