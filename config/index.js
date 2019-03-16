@@ -5,6 +5,7 @@ const channelIDs = {
   suggestions: '478687396896964609',
   radio: '462313308725182484',
   othersMusic: '525062108405301268',
+  memberReleases: '550463448224497664',
   selfPromoLogs: '470759790197473280',
   leaderboard: process.env.DEBUG ? '483814924762742804' : '467777046374907914'
 }

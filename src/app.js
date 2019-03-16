@@ -24,7 +24,7 @@ client.on('ready', async () => {
     const leaderboardChannel = client.channels.get(config.channelIDs.leaderboard)
 
     let lastLeaderboard = await updateLeaderboard([], suggestionChannel, leaderboardChannel)
-    
+
     setInterval(async () => {
       lastLeaderboard = await updateLeaderboard(lastLeaderboard, suggestionChannel, leaderboardChannel)
     }, config.updateFrequency)
@@ -41,8 +41,9 @@ client.on('message', msg => {
     const isInRepostSuggestions = msg.channel.id === config.channelIDs.suggestions
     const isInRadio = msg.channel.id === config.channelIDs.radio
     const isInOthersMusic = msg.channel.id === config.channelIDs.othersMusic
+    const isInMemberReleases = msg.channel.id === config.channelIDs.memberReleases
     const isStaff = msg.member.roles.has(config.roleIDs.staff)
-    const isExempt = isInRepostSuggestions || isInRadio || isInOthersMusic || isStaff
+    const isExempt = isInRepostSuggestions || isInRadio || isInOthersMusic || isInMemberReleases || isStaff
 
     if (hasPublicLink && !isExempt) {
       msg.delete()
@@ -73,7 +74,7 @@ client.on('message', msg => {
       if (!urls) {
         msg.author.send('Please only post SoundCloud links in #repost-suggestions :wink:')
         msg.delete()
-        
+
         return
       }
       if (urls.length > 1) {
