@@ -17,11 +17,11 @@ client.on('ready', async () => {
     log({ message: `Debug is set to ${ process.env.DEBUG }`, logLevel: 1 })
     log({ message: '-----------', logLevel: 1 })
 
-    client.user.setActivity(`with Hum4n01d`)
+    client.user.setActivity('Auxy')
 
     // Start leaderboard update loop
-    const suggestionChannel = client.channels.get(config.suggestionChannelID)
-    const leaderboardChannel = client.channels.get(config.leaderboardChannelID)
+    const suggestionChannel = client.channels.get(config.channelIDs.suggestions)
+    const leaderboardChannel = client.channels.get(config.channelIDs.leaderboard)
 
     let lastLeaderboard = await updateLeaderboard([], suggestionChannel, leaderboardChannel)
     
@@ -38,16 +38,16 @@ client.on('message', msg => {
     if (msg.author.bot) return
 
     const hasPublicLink = containsPublicLink(msg.content)
-    const isInRepostSuggestions = msg.channel.id === config.suggestionChannelID
-    const isInRadio = msg.channel.id === '462313308725182484'
-    const isInOthersMusic = msg.channel.id === '525062108405301268'
-    const isStaff = msg.member.roles.has('466011844977360896')
+    const isInRepostSuggestions = msg.channel.id === config.channelIDs.suggestions
+    const isInRadio = msg.channel.id === config.channelIDs.radio
+    const isInOthersMusic = msg.channel.id === config.channelIDs.othersMusic
+    const isStaff = msg.member.roles.has(config.roleIDs.staff)
     const isExempt = isInRepostSuggestions || isInRadio || isInOthersMusic || isStaff
 
     if (hasPublicLink && !isExempt) {
       msg.delete()
 
-      client.channels.find('id', '470759790197473280').send({
+      client.channels.find('id', config.channelIDs.selfPromoLogs).send({
         embed: {
           author: {
             iconURL: msg.author.displayAvatarURL,

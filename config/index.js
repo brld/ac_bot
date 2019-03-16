@@ -1,9 +1,19 @@
 const { join } = require('path')
 const { readFileSync } = require('fs')
 
+const channelIDs = {
+  suggestions: '478687396896964609',
+  radio: '462313308725182484',
+  othersMusic: '525062108405301268',
+  selfPromoLogs: '470759790197473280',
+  leaderboard: process.env.DEBUG ? '483814924762742804' : '467777046374907914'
+}
+const roleIDs = {
+  staff: '466011844977360896'
+}
+
 module.exports = {
-  suggestionChannelID: '478687396896964609',
-  leaderboardChannelID: process.env.DEBUG ? '483814924762742804' : '467777046374907914',
-  infoText: readFileSync(join(__dirname, 'infoText.txt'), 'utf-8'),
+  channelIDs,
+  roleIDs,
   updateFrequency: process.env.DEBUG ? 5000 : 1000 * 60 * 60
 }

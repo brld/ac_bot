@@ -23,9 +23,12 @@ const getLeaderboardEmbeds = async leaderboard => {
       title: `:${embedInfo[index].name}_place: ${embedInfo[index].abbreviation} Place`,
       description: `[${track.title}](${track.url})`,
       fields: [{
-        name: "Votes",
+        name: 'Votes',
         value: track.votes
-        }],
+      }, {
+        name: 'Suggested By',
+        value: track.suggester
+      }],
       timestamp: new Date()
     }))
   } catch (err) {
