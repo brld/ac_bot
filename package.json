@@ -1,21 +1,32 @@
 {
   "name": "ac_bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/app.js",
-  "dependencies": {
-    "discord.js": "^11.3.2",
-    "dotenv": "^6.0.0",
-    "node-fetch": "^2.1.2",
-    "underscore": "^1.9.1"
-  },
-  "devDependencies": {
-    "nodemon": "^1.18.6"
-  },
+  "version": "2.0.0",
+  "description": "Bot for the Auxy Collective discord server",
+  "main": "app.js",
   "scripts": {
-    "start": "node src/app",
-    "dev": "nodemon"
+    "start": "nodemon"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hum4n01d/ac_bot.git"
+  },
+  "author": "Hum4n01d <hum4n01d@icloud.com> (https://github.com/hum4n01d)",
+  "contributors": [
+    "jakedel (https://github.com/jakedel)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hum4n01d/ac_bot/issues"
+  },
+  "homepage": "https://github.com/hum4n01d/ac_bot#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.1",
+    "prettier": "1.19.1"
+  },
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0",
+    "get-urls": "^9.2.0",
+    "node-fetch": "^2.6.0"
+  }
 }
