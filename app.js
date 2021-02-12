@@ -56,6 +56,10 @@ const refreshLeaderboard = async () => {
     }
   })
 
+  const startStream = async () => {
+    
+  }
+
   const leaderboardChannel = await client.channels.fetch(
     config.channels.leaderboard
   )
@@ -109,7 +113,7 @@ client.on('ready', async () => {
   setInterval(refreshLeaderboard, config.interval)
 })
 
-client.on('message', (msg) => {
+client.on('message', async (msg) => {
   if (msg.channel.id === config.channels.repostSuggestions) {
     const urls = getUrls(msg.content) // Returns a set
 
@@ -121,7 +125,117 @@ client.on('message', (msg) => {
       )
       msg.delete()
     }
+
+    return
   }
-})
+  else if (!msg.content.startsWith("&")) return
+
+  const args = msg.content.slice("&".length).trim().split(' ');
+  const command = args.shift().toLowerCase();
+  var inStream = false;
+
+  if (command === 'start-stream') {
+    if (inStream) {
+      msg.channel.send(`Already in stream mode!`)
+    }
+    else {
+      const filter = m => m.author.id != client.user.id;
+      const collectorMain = msg.channel.createMessageCollector(filter);
+      const collectorTracks = msg.channel.createMessageCollector(filter);
+      const collectorInStream = msg.channel.createMessageCollector(filter);
+      var userLinks = [];
+      var trackLinks = [];
+      var userTitles = [];
+      msg.channel.send(`Confirm stream setup start? (yes / no)`).then(() => {
+        collectorMain.on('collect', m => {
+          if (m.content.toLowerCase() == 'yes') {
+            inStream = true;
+            msg.channel.send(`Stream setup started! Enter track links (1 per line):`)
+            collectorMain.stop('')
+            collectorTracks.on('collect', async (m) => {
+              if (m.content.includes('soundcloud.com/') && m.content.split('/')[4]) {
+                var lineSplit = m.content.split("\n")
+                for (var i = 0; i < lineSplit.length; i++) {
+                  trackLinks.push(lineSplit[i])
+                  var lineArr = lineSplit[i].split("/")
+                  lineArr.pop()
+                  userLinks.push(lineArr.join("/").replace('<', ''))
+                  console.log('before')
+                  const userTitle = await getSoundCloudTitle(lineArr.join("/").replace('<', ''))
+                  console.log(userTitle)
+                  userTitles.push(userTitle)
+                }
+                collectorTracks.stop('')
+                msg.channel.send(`Stream setup concluded. Stream starting now!`)
+                var artistIndex = 0;
+
+                console.log(inStream)
+                collectorInStream.on('collect', m => {
+                  if (m.channel.id === config.channels.chat || m.channelid === config.channels.hosts) {
+                  
+                    if (m.content == '&current') {
+                      msg.channel.send(`Current artist, **${userTitles[artistIndex]}**! (${artistIndex + 1} / ${userLinks.length}): __${userLinks[artistIndex]}__`)
+                    }
+                    else if (m.content == '&next') {
+                      if (artistIndex != userLinks.length - 1) {
+                        artistIndex += 1
+                      } else {
+                        artistIndex = 0
+                      }
+                      msg.channel.send(`Next artist, **${userTitles[artistIndex]}**! (${artistIndex + 1} / ${userLinks.length}): __${userLinks[artistIndex]}__`)
+                    }
+                    else if (m.content == '&previous') {
+                      if (artistIndex != 0) {
+                        artistIndex -= 1
+                      } else {
+                        artistIndex = userLinks.length - 1
+                      }
+                      msg.channel.send(`Previous artist!, **${userTitles[artistIndex]}**! (${artistIndex + 1} / ${userLinks.length}): __${userLinks[artistIndex]}__`)
+                    }
+                    else if (m.content == '&stop-stream') {
+                      msg.channel.send(`Stream ended. See you next time!`)
+                      collectorInStream.stop("Stream ended.")
+                    }
+                  }
+                });
+              }
+            });
+            
+          }
+          else if (m.content.toLowerCase() == 'no') {
+            msg.channel.send(`Cancelling stream setup. Beep boop.`)
+            collectorMain.stop("Setup cancel.")
+          }
+        });
+      });
+    }
+  }
+
+  })
 
 client.login(process.env.BOT_TOKEN)
+
+
+// else if (!msg.content.startsWith("&")) return
+
+//   const args = msg.content.slice("&".length).trim().split(' ');
+//   const command = args.shift().toLowerCase();
+
+//   const filter = m => m.content.includes('https://soundcloud.com/') && m.author.id == message.author.id;
+
+//   if (command === 'start-stream') {
+//     const trackLinks = [];
+//     msg.channel.send(`Input links (1 per line):`).then(() => {
+//       msg.channel.awaitMessages(filter)
+//       .then(collected => {
+//         collected.map((track) => {
+//           trackLinks.push(track);
+//         });
+//         msg.channel.send(`Final track list: ${trackLinks}`);
+//       }).catch(collected => {
+//         msg.channel.send(`Timed out`);
+//       });
+//     });
+//   }
+
+// })
