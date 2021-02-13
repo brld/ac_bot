@@ -7,7 +7,7 @@ const {
   isLeaderboardDifferent,
   getLeaderboardEmbeds,
   validateSuggestion,
-  getLeaderboard,
+  getLeaderboard
 } = require('./utils')
 const config = require('./config')
 
@@ -21,9 +21,9 @@ const getSuggestions = async () => {
   )
   const suggestionMessages = await suggestionsChannel.messages.fetch()
 
-  let suggestions = suggestionMessages.map((msg) => {
+  let suggestions = suggestionMessages.map(msg => {
     const voteReactions = msg.reactions.cache.find(
-      (reaction) => reaction.emoji.name == '👍'
+      reaction => reaction.emoji.name == '👍'
     )
 
     const urls = getUrls(msg.content)
@@ -33,7 +33,7 @@ const getSuggestions = async () => {
       votes: voteReactions ? voteReactions.count : 0,
       message: msg.content,
       suggester: `${msg.author.username}#${msg.author.discriminator}`,
-      suggestedDate: msg.createdAt,
+      suggestedDate: msg.createdAt
     }
   })
 
@@ -47,7 +47,7 @@ const refreshLeaderboard = async () => {
   )
   const suggestionMessages = await suggestionsChannel.messages.fetch()
 
-  suggestionMessages.forEach((msg) => {
+  suggestionMessages.forEach(msg => {
     const urls = getUrls(msg.content) // Returns a set
     const validationResult = validateSuggestion(urls)
 
@@ -55,10 +55,6 @@ const refreshLeaderboard = async () => {
       msg.delete()
     }
   })
-
-  const startStream = async () => {
-    
-  }
 
   const leaderboardChannel = await client.channels.fetch(
     config.channels.leaderboard
@@ -74,13 +70,13 @@ const refreshLeaderboard = async () => {
   // Add SoundCloud titles to track objects
   // Separate loop for separate error handling
   leaderboard = await Promise.all(
-    leaderboard.map(async (track) => {
+    leaderboard.map(async track => {
       try {
         const title = await getSoundCloudTitle(track.url)
 
         return {
           ...track,
-          title,
+          title
         }
       } catch (err) {
         console.error(`Failed to get title of track from SoundCloud: ${err}`)
@@ -97,7 +93,7 @@ const refreshLeaderboard = async () => {
   try {
     const leaderboardEmbeds = await getLeaderboardEmbeds(leaderboard)
 
-    leaderboardEmbeds.map((embed) => {
+    leaderboardEmbeds.map(embed => {
       leaderboardChannel.send({ embed })
     })
   } catch (err) {
@@ -113,7 +109,18 @@ client.on('ready', async () => {
   setInterval(refreshLeaderboard, config.interval)
 })
 
-client.on('message', async (msg) => {
+var inStream = false
+var emojis = [
+  ':star:',
+  ':tada:',
+  ':headphones:',
+  ':raised_hands:',
+  ':medal:',
+  ':fire:',
+  ':exclamation:'
+]
+
+client.on('message', async msg => {
   if (msg.channel.id === config.channels.repostSuggestions) {
     const urls = getUrls(msg.content) // Returns a set
 
@@ -127,94 +134,167 @@ client.on('message', async (msg) => {
     }
 
     return
-  }
-  else if (!msg.content.startsWith("&")) return
+  } else if (!msg.content.startsWith('&')) return
 
-  const args = msg.content.slice("&".length).trim().split(' ');
-  const command = args.shift().toLowerCase();
-  var inStream = false;
+  const args = msg.content
+    .slice('&'.length)
+    .trim()
+    .split(' ')
+  const command = args.shift().toLowerCase()
 
-  if (command === 'start-stream') {
+  if (command === 'start-stream' && !inStream) {
     if (inStream) {
       msg.channel.send(`Already in stream mode!`)
-    }
-    else {
-      const filter = m => m.author.id != client.user.id;
-      const collectorMain = msg.channel.createMessageCollector(filter);
-      const collectorTracks = msg.channel.createMessageCollector(filter);
-      const collectorInStream = msg.channel.createMessageCollector(filter);
-      var userLinks = [];
-      var trackLinks = [];
-      var userTitles = [];
+    } else {
+      const filter = m => m.author.id != client.user.id
+      const collectorMain = msg.channel.createMessageCollector(filter)
+      const collectorTracks = msg.channel.createMessageCollector(filter)
+      const collectorInStream = msg.channel.createMessageCollector(filter)
+      var userLinks = []
+      var trackLinks = []
+      var userTitles = []
+      var trackTitles = []
       msg.channel.send(`Confirm stream setup start? (yes / no)`).then(() => {
         collectorMain.on('collect', m => {
           if (m.content.toLowerCase() == 'yes') {
-            inStream = true;
-            msg.channel.send(`Stream setup started! Enter track links (1 per line):`)
+            inStream = true
+            msg.channel.send(
+              `Stream setup started! Enter track links (1 per line):`
+            )
             collectorMain.stop('')
-            collectorTracks.on('collect', async (m) => {
-              if (m.content.includes('soundcloud.com/') && m.content.split('/')[4]) {
-                var lineSplit = m.content.split("\n")
+            collectorTracks.on('collect', async m => {
+              if (
+                m.content.includes('soundcloud.com/') &&
+                m.content.split('/')[4]
+              ) {
+                var lineSplit = m.content.split('\n')
                 for (var i = 0; i < lineSplit.length; i++) {
                   trackLinks.push(lineSplit[i])
-                  var lineArr = lineSplit[i].split("/")
+                  var lineArr = lineSplit[i].split('/')
+                  const trackTitle = await getSoundCloudTitle(
+                    lineArr.join('/').replace('<', '')
+                  )
                   lineArr.pop()
-                  userLinks.push(lineArr.join("/").replace('<', ''))
-                  console.log('before')
-                  const userTitle = await getSoundCloudTitle(lineArr.join("/").replace('<', ''))
-                  console.log(userTitle)
+                  if (lineArr[4]) {
+                    lineArr.pop()
+                  }
+                  userLinks.push(lineArr.join('/').replace('<', ''))
+                  const userTitle = await getSoundCloudTitle(
+                    lineArr.join('/').replace('<', '')
+                  )
                   userTitles.push(userTitle)
+                  trackTitles.push(trackTitle)
                 }
                 collectorTracks.stop('')
                 msg.channel.send(`Stream setup concluded. Stream starting now!`)
-                var artistIndex = 0;
+                var artistIndex = 0
 
-                console.log(inStream)
+                console.log(userLinks)
+                console.log(trackLinks)
+                console.log(userTitles)
+                console.log(trackTitles)
                 collectorInStream.on('collect', m => {
-                  if (m.channel.id === config.channels.chat || m.channelid === config.channels.hosts) {
-                  
-                    if (m.content == '&current') {
-                      msg.channel.send(`Current artist, **${userTitles[artistIndex]}**! (${artistIndex + 1} / ${userLinks.length}): __${userLinks[artistIndex]}__`)
+                  // if (m.channel.id === config.channels.chat || m.channelid === config.channels.hosts) {
+                  var emoji = emojis[Math.floor(Math.random() * emojis.length)]
+
+                  if (m.content == '&current') {
+                    msg.channel.send(
+                      `Current artist, **${
+                        userTitles[artistIndex]
+                      }**! (${artistIndex + 1} / ${
+                        userLinks.length
+                      }): **${emoji}** ${
+                        userLinks[artistIndex]
+                      } **${emoji}** \n\n Currently playing track **${trackTitles[
+                        artistIndex
+                      ]
+                        .split(' ')
+                        .slice(
+                          0,
+                          userTitles[artistIndex].split(' ').length - 1 > 0
+                            ? -1 *
+                                (userTitles[artistIndex].split(' ').length -
+                                  1) -
+                                2
+                            : -2
+                        )
+                        .join(' ')}**`
+                    )
+                  } else if (m.content == '&next') {
+                    if (artistIndex != userLinks.length - 1) {
+                      artistIndex += 1
+                    } else {
+                      artistIndex = 0
                     }
-                    else if (m.content == '&next') {
-                      if (artistIndex != userLinks.length - 1) {
-                        artistIndex += 1
-                      } else {
-                        artistIndex = 0
-                      }
-                      msg.channel.send(`Next artist, **${userTitles[artistIndex]}**! (${artistIndex + 1} / ${userLinks.length}): __${userLinks[artistIndex]}__`)
+                    msg.channel.send(
+                      `Next artist, **${
+                        userTitles[artistIndex]
+                      }**! (${artistIndex + 1} / ${
+                        userLinks.length
+                      }): **${emoji}** ${
+                        userLinks[artistIndex]
+                      } **${emoji}** \n\n Currently playing track **${trackTitles[
+                        artistIndex
+                      ]
+                        .split(' ')
+                        .slice(
+                          0,
+                          userTitles[artistIndex].split(' ').length - 1 > 0
+                            ? -1 *
+                                (userTitles[artistIndex].split(' ').length -
+                                  1) -
+                                2
+                            : -2
+                        )
+                        .join(' ')}**`
+                    )
+                  } else if (m.content == '&previous') {
+                    if (artistIndex != 0) {
+                      artistIndex -= 1
+                    } else {
+                      artistIndex = userLinks.length - 1
                     }
-                    else if (m.content == '&previous') {
-                      if (artistIndex != 0) {
-                        artistIndex -= 1
-                      } else {
-                        artistIndex = userLinks.length - 1
-                      }
-                      msg.channel.send(`Previous artist!, **${userTitles[artistIndex]}**! (${artistIndex + 1} / ${userLinks.length}): __${userLinks[artistIndex]}__`)
-                    }
-                    else if (m.content == '&stop-stream') {
-                      msg.channel.send(`Stream ended. See you next time!`)
-                      collectorInStream.stop("Stream ended.")
-                    }
+                    msg.channel.send(
+                      `Previous artist!, **${
+                        userTitles[artistIndex]
+                      }**! (${artistIndex + 1} / ${
+                        userLinks.length
+                      }): **${emoji}** ${
+                        userLinks[artistIndex]
+                      } **${emoji}** \n\n Currently playing track **${trackTitles[
+                        artistIndex
+                      ]
+                        .split(' ')
+                        .slice(
+                          0,
+                          userTitles[artistIndex].split(' ').length - 1 > 0
+                            ? -1 *
+                                (userTitles[artistIndex].split(' ').length -
+                                  1) -
+                                2
+                            : -2
+                        )
+                        .join(' ')}**`
+                    )
+                  } else if (m.content == '&stop-stream') {
+                    msg.channel.send(`Stream ended. See you next time!`)
+                    collectorInStream.stop('Stream ended.')
                   }
-                });
+                  // }
+                })
               }
-            });
-            
-          }
-          else if (m.content.toLowerCase() == 'no') {
+            })
+          } else if (m.content.toLowerCase() == 'no') {
             msg.channel.send(`Cancelling stream setup. Beep boop.`)
-            collectorMain.stop("Setup cancel.")
+            collectorMain.stop('Setup cancel.')
           }
-        });
-      });
+        })
+      })
     }
   }
-
-  })
+})
 
 client.login(process.env.BOT_TOKEN)
-
 
 // else if (!msg.content.startsWith("&")) return
 
