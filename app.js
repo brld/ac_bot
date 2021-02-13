@@ -300,7 +300,7 @@ client.on('message', async msg => {
                           lineArgs.join('/')
                         )
                         console.log(trackArgs)
-                        msg.channel.send(trackLinks.includes(trackArgs) 
+                        config.channels.chat.send(trackLinks.includes(trackArgs) 
                           ?  `Current artist, **${
                             userTitles[trackLinks.indexOf(trackArgs)]
                           }**! (${trackLinks.indexOf(trackArgs) + 1} / ${
