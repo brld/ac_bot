@@ -146,7 +146,7 @@ client.on('message', async msg => {
     if (inStream) {
       msg.channel.send(`Already in stream mode!`)
     } else {
-      const filter = m => m.author.id != client.user.id
+      const filter = m => m.author.id != client.user.id && m.author.id != '457927080789803020' // prod token
       const collectorMain = msg.channel.createMessageCollector(filter)
       const collectorTracks = msg.channel.createMessageCollector(filter)
       const collectorInStream = msg.channel.createMessageCollector(filter)
