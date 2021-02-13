@@ -198,150 +198,150 @@ client.on('message', async msg => {
                 console.log(userTitles)
                 console.log(trackTitles)
                 collectorInStream.on('collect', async m => {
-                  if (m.channel.id === config.channels.chat || m.channelid === config.channels.hosts || m.channelid === config.channels.hostsDj) {
-                    var emoji = emojis[Math.floor(Math.random() * emojis.length)]
+                  // if (m.channel.id === config.channels.chat || m.channelid === config.channels.hosts) {
+                  var emoji = emojis[Math.floor(Math.random() * emojis.length)]
 
-                    if (m.content == '&current') {
-                      msg.channel.send(
-                        `Current artist, **${
-                          userTitles[artistIndex]
-                        }**! (${artistIndex + 1} / ${
-                          userLinks.length
-                        }): **${emoji}** ${
-                          userLinks[artistIndex]
-                        } **${emoji}** \n\nCurrently playing track **${trackTitles[
-                          artistIndex
-                        ]
-                          .split(' ')
-                          .slice(
-                            0,
-                            userTitles[artistIndex].split(' ').length - 1 > 0
-                              ? -1 *
-                                  (userTitles[artistIndex].split(' ').length -
-                                    1) -
-                                  2
-                              : -2
-                          )
-                          .join(' ')}**`
-                      )
-                    } else if (m.content == '&next') {
-                      if (artistIndex != userLinks.length - 1) {
-                        artistIndex += 1
-                      } else {
-                        artistIndex = 0
-                      }
-                      msg.channel.send(
-                        `Next artist, **${
-                          userTitles[artistIndex]
-                        }**! (${artistIndex + 1} / ${
-                          userLinks.length
-                        }): **${emoji}** ${
-                          userLinks[artistIndex]
-                        } **${emoji}** \n\nCurrently playing track **${trackTitles[
-                          artistIndex
-                        ]
-                          .split(' ')
-                          .slice(
-                            0,
-                            userTitles[artistIndex].split(' ').length - 1 > 0
-                              ? -1 *
-                                  (userTitles[artistIndex].split(' ').length -
-                                    1) -
-                                  2
-                              : -2
-                          )
-                          .join(' ')}**`
-                      )
-                    } else if (m.content == '&previous') {
-                      if (artistIndex != 0) {
-                        artistIndex -= 1
-                      } else {
-                        artistIndex = userLinks.length - 1
-                      }
-                      msg.channel.send(
-                        `Previous artist!, **${
-                          userTitles[artistIndex]
-                        }**! (${artistIndex + 1} / ${
-                          userLinks.length
-                        }): **${emoji}** ${
-                          userLinks[artistIndex]
-                        } **${emoji}** \n\nCurrently playing track **${trackTitles[
-                          artistIndex
-                        ]
-                          .split(' ')
-                          .slice(
-                            0,
-                            userTitles[artistIndex].split(' ').length - 1 > 0
-                              ? -1 *
-                                  (userTitles[artistIndex].split(' ').length -
-                                    1) -
-                                  2
-                              : -2
-                          )
-                          .join(' ')}**`
-                      )
-                    } else if (m.content.includes('-p')) {
-                        const lineArgs = m.content
-                          .slice('-p'.length)
-                          .trim()
-                          .split(' ')
-                          .shift()
-                          .split('/')
-                        const trackArgs = lineArgs.join('/')
-                        const trackTitleArgs = await getSoundCloudTitle(
-                          lineArgs.join('/')
+                  if (m.content == '&current') {
+                    msg.channel.send(
+                      `Current artist, **${
+                        userTitles[artistIndex]
+                      }**! (${artistIndex + 1} / ${
+                        userLinks.length
+                      }): **${emoji}** ${
+                        userLinks[artistIndex]
+                      } **${emoji}** \n\nCurrently playing track **${trackTitles[
+                        artistIndex
+                      ]
+                        .split(' ')
+                        .slice(
+                          0,
+                          userTitles[artistIndex].split(' ').length - 1 > 0
+                            ? -1 *
+                                (userTitles[artistIndex].split(' ').length -
+                                  1) -
+                                2
+                            : -2
                         )
-                        lineArgs.pop()
-                        if (lineArgs[4]) {
-                          lineArgs.pop()
-                        }
-                        const userArgs = lineArgs.join('/')
-                        const userTitleArgs = await getSoundCloudTitle(
-                          lineArgs.join('/')
-                        )
-                        console.log(trackArgs)
-                        config.channels.chat.send(trackLinks.includes(trackArgs) 
-                          ?  `Current artist, **${
-                            userTitles[trackLinks.indexOf(trackArgs)]
-                          }**! (${trackLinks.indexOf(trackArgs) + 1} / ${
-                            userLinks.length
-                          }): **${emoji}** ${
-                            userLinks[trackLinks.indexOf(trackArgs)]
-                          } **${emoji}** \n\nCurrently playing track **${trackTitles[
-                            trackLinks.indexOf(trackArgs)
-                          ]
-                            .split(' ')
-                            .slice(
-                              0,
-                              userTitles[trackLinks.indexOf(trackArgs)].split(' ').length - 1 > 0
-                                ? -1 *
-                                    (userTitles[trackLinks.indexOf(trackArgs)].split(' ').length -
-                                      1) -
-                                    2
-                                : -2
-                            )
-                            .join(' ')}**`
-                          : `New addition! Current artist, **${
-                            userTitleArgs
-                          }**! **${emoji}** ${
-                            userArgs
-                          } **${emoji}** \n\nCurrently playing track **${trackTitleArgs
-                            .split(' ')
-                            .slice(
-                              0,
-                              userTitleArgs.split(' ').length - 1 > 0
-                                ? -1 *
-                                    (userTitleArgs.split(' ').length -
-                                      1) -
-                                    2
-                                : -2
-                            )
-                            .join(' ')}**`)
-                    } else if (m.content == '&stop-stream') {
-                      msg.channel.send(`Stream ended. See you next time!`)
-                      collectorInStream.stop('Stream ended.')
+                        .join(' ')}**`
+                    )
+                  } else if (m.content == '&next') {
+                    if (artistIndex != userLinks.length - 1) {
+                      artistIndex += 1
+                    } else {
+                      artistIndex = 0
                     }
+                    msg.channel.send(
+                      `Next artist, **${
+                        userTitles[artistIndex]
+                      }**! (${artistIndex + 1} / ${
+                        userLinks.length
+                      }): **${emoji}** ${
+                        userLinks[artistIndex]
+                      } **${emoji}** \n\nCurrently playing track **${trackTitles[
+                        artistIndex
+                      ]
+                        .split(' ')
+                        .slice(
+                          0,
+                          userTitles[artistIndex].split(' ').length - 1 > 0
+                            ? -1 *
+                                (userTitles[artistIndex].split(' ').length -
+                                  1) -
+                                2
+                            : -2
+                        )
+                        .join(' ')}**`
+                    )
+                  } else if (m.content == '&previous') {
+                    if (artistIndex != 0) {
+                      artistIndex -= 1
+                    } else {
+                      artistIndex = userLinks.length - 1
+                    }
+                    msg.channel.send(
+                      `Previous artist!, **${
+                        userTitles[artistIndex]
+                      }**! (${artistIndex + 1} / ${
+                        userLinks.length
+                      }): **${emoji}** ${
+                        userLinks[artistIndex]
+                      } **${emoji}** \n\nCurrently playing track **${trackTitles[
+                        artistIndex
+                      ]
+                        .split(' ')
+                        .slice(
+                          0,
+                          userTitles[artistIndex].split(' ').length - 1 > 0
+                            ? -1 *
+                                (userTitles[artistIndex].split(' ').length -
+                                  1) -
+                                2
+                            : -2
+                        )
+                        .join(' ')}**`
+                    )
+                  } else if (m.content.includes('-p')) {
+                      const lineArgs = m.content
+                        .slice('-p'.length)
+                        .trim()
+                        .split(' ')
+                        .shift()
+                        .split('/')
+                      const trackArgs = lineArgs.join('/')
+                      const trackTitleArgs = await getSoundCloudTitle(
+                        lineArgs.join('/')
+                      )
+                      lineArgs.pop()
+                      if (lineArgs[4]) {
+                        lineArgs.pop()
+                      }
+                      const userArgs = lineArgs.join('/')
+                      const userTitleArgs = await getSoundCloudTitle(
+                        lineArgs.join('/')
+                      )
+                      console.log(trackArgs)
+                      client.channels.cache.get(config.channels.chat).send(trackLinks.includes(trackArgs) 
+                        ?  `Current artist, **${
+                          userTitles[trackLinks.indexOf(trackArgs)]
+                        }**! (${trackLinks.indexOf(trackArgs) + 1} / ${
+                          userLinks.length
+                        }): **${emoji}** ${
+                          userLinks[trackLinks.indexOf(trackArgs)]
+                        } **${emoji}** \n\nCurrently playing track **${trackTitles[
+                          trackLinks.indexOf(trackArgs)
+                        ]
+                          .split(' ')
+                          .slice(
+                            0,
+                            userTitles[trackLinks.indexOf(trackArgs)].split(' ').length - 1 > 0
+                              ? -1 *
+                                  (userTitles[trackLinks.indexOf(trackArgs)].split(' ').length -
+                                    1) -
+                                  2
+                              : -2
+                          )
+                          .join(' ')}**`
+                        : `New addition! Current artist, **${
+                          userTitleArgs
+                        }**! **${emoji}** ${
+                          userArgs
+                        } **${emoji}** \n\nCurrently playing track **${trackTitleArgs
+                          .split(' ')
+                          .slice(
+                            0,
+                            userTitleArgs.split(' ').length - 1 > 0
+                              ? -1 *
+                                  (userTitleArgs.split(' ').length -
+                                    1) -
+                                  2
+                              : -2
+                          )
+                          .join(' ')}**`)
+                  } else if (m.content == '&stop-stream') {
+                    msg.channel.send(`Stream ended. See you next time!`)
+                    collectorInStream.stop('Stream ended.')
                   }
+                  // }
                 })
               }
             })
