@@ -300,6 +300,7 @@ client.on('message', async msg => {
                         lineArgs.join('/')
                       )
                       console.log(trackArgs)
+                      artistIndex = trackLinks.indexOf(trackArgs)
                       client.channels.cache.get(config.channels.chat).send(trackLinks.includes(trackArgs) 
                         ?  `Current artist, **${
                           userTitles[trackLinks.indexOf(trackArgs)]
@@ -340,6 +341,7 @@ client.on('message', async msg => {
                   } else if (m.content == '&stop-stream') {
                     msg.channel.send(`Stream ended. See you next time!`)
                     collectorInStream.stop('Stream ended.')
+                    inStream = false
                   }
                   // }
                 })
