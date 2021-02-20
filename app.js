@@ -149,7 +149,7 @@ client.on('message', async msg => {
       msg.channel.send(`Already in stream mode!`)
     } else {
       // const filter = m => m.author.id != client.user.id
-      const filter = m => !m.author.bot && m.roles.find(r => r.name === "Host")
+      const filter = m => !m.author.bot // && m.member.roles.find(r => r.name === "Host")
       const collectorMain = msg.channel.createMessageCollector(filter)
       const collectorTracks = msg.channel.createMessageCollector(filter)
       const collectorInStream = msg.channel.createMessageCollector(filter)
