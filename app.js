@@ -122,7 +122,7 @@ var emojis = [
 
 client.on('message', async msg => {
   if (msg.author.bot) return
-  
+
   if (msg.channel.id === config.channels.repostSuggestions) {
     const urls = getUrls(msg.content) // Returns a set
 
@@ -301,7 +301,7 @@ client.on('message', async msg => {
                       )
                       console.log(trackArgs)
                       artistIndex = trackLinks.indexOf(trackArgs)
-                      client.channels.cache.get(config.channels.chat).send(trackLinks.includes(trackArgs) 
+                      client.channels.cache.get(config.channels.chat).send(trackLinks.includes(trackArgs)
                         ?  `Current artist, **${
                           userTitles[trackLinks.indexOf(trackArgs)]
                         }**! (${trackLinks.indexOf(trackArgs) + 1} / ${
@@ -353,6 +353,23 @@ client.on('message', async msg => {
           }
         })
       })
+    }
+  } else if (command === 'fetch') {
+    if (msg.channel.id === config.channels.auxy) {
+      msg.channel.fetchMessages().then(async messages => {
+        console.log(`${messages.size} obtained.`);
+
+        let finalArray = [];
+
+        const putInArray = async (data) => finalArray.push(data);
+        const handleTime = (timestamp) => moment(timestamp).format("DD/MM/YYYY - hh:mm:ss a").replace("pm", "PM").reaplce("am", "AM");
+
+        for (const message of messages.array().reverse()) await putInArray(`${handleTime(message.timestamp)} ${msg.author.username} : ${msg.content}`);
+
+        console.log(finalArray);
+        console.log(finalArray.length);
+
+      });
     }
   }
 })
